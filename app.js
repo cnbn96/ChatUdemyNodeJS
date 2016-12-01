@@ -33,8 +33,6 @@ app.use(passport.session());
 
 require('./auth/passportAuth.js')(passport, FacebookStrategy, config, mongoose);
 require('./routes/routes.js')(express, app, passport, config, rooms);
-
-
 // app.listen(3001, function(){
 //   console.log('MyChatCat working on port 3001');
 //   console.log('Mode: '+env);
@@ -46,4 +44,5 @@ var io = require('socket.io').listen(server);
 require('./socket/socket.js')(io, rooms);
 server.listen(app.get('port'), function(){
   console.log("App working on PORT: "+app.get('port'));
+  console.log('Mode: '+env);
 });

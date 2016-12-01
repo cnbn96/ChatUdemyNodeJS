@@ -68,7 +68,7 @@
 	<script>
 		var host = '{{config.host}}';
 		var room = '{{room}}';
-		var messages =io.connect(host + '/messages');
+		var messages = 	io.connect(host + '/messages');
 		var userName = '{{user.fullName}}';
 		var userPic = '{{user.profileAvatar}}';
 		//add socket listen on connection
@@ -78,7 +78,6 @@
 		});
 		messages.on('messageFeed', function(data){
 			var messages = JSON.parse(data);
-			console.log(messages);
 			updateMessageFeed(messages.userPic, messages.message);
 		});
 		$(document).on('keyup', '.newmessage',function(e){
@@ -104,6 +103,23 @@
 				str += '</div></li>'
 				$(str).hide().appendTo($('.messages')).slideDown(100);
 		}
+
+		messages.on('updateUserList', function(data){
+			var userList = JSON.parse(data);
+			console.log(userList);
+			var user = $('.users');
+			user.html('');
+			for(var i = 0; i<userList.length; i++){
+				var str = '<li><img src="' + userList[i].userPic + '"><h5>' + userList[i].userName + '</h5></li>';
+				$(str).appendTo(user);
+			}
+		});
+		setInterval(function(){
+			console.log("interval");
+			messages.emit('updateList', {room: room});
+		}, 15 * 1000);
+
+
 		</script>
 </head>
 <body>
