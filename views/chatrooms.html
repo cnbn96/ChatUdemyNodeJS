@@ -27,8 +27,31 @@
 		$(function(){
 			var host = '{{config.host}}';
 			var socket = io.connect(host+'/roomlist');
+			//socket listen on connect
 			socket.on('connect', function(){
 				console.log("Connection Established on Client!");
+			});
+
+			//Socket listen on roomupdate event and
+			//update list room name in .roomlist
+			socket.on('roomupdate', function(data){
+				var procData = JSON.parse(data);
+				$(".roomlist").html('');
+				for(var i = 0; i < procData.length; i++){
+					var str = '<a href="room/'+procData[i].room_number+'"><li>'+procData[i].room_name+'</li></a>';
+					$('.roomlist').prepend(str);
+				}
+			})
+			//When user click on Create Button, then user
+			//will send name from roomName field
+			// using socket.emit => sending emit name newroom
+			$(document).on('click','#create', function(){
+				var room_name = $(".newRoom").val().trim();
+				if(room_name != ''){
+					var room_number = parseInt(Date.now() / 1000 | 0);
+					socket.emit('newroom', {room_name: room_name, room_number: room_number});
+					$(".newRoom").val('');
+				}
 			})
 		})
 		/*

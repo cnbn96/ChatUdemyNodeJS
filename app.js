@@ -9,7 +9,7 @@ var express = require('express'),
     passport = require('passport'),
     FacebookStrategy = require('passport-facebook').Strategy,
     rooms = []
-
+console.log(__dirname);
 app.set('views', path.join(__dirname, 'views'));
 app.engine('html', require('hogan-express'));
 app.set('view engine', 'html');
@@ -32,7 +32,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 require('./auth/passportAuth.js')(passport, FacebookStrategy, config, mongoose);
-require('./routes/routes.js')(express, app, passport, config);
+require('./routes/routes.js')(express, app, passport, config, rooms);
 
 
 // app.listen(3001, function(){

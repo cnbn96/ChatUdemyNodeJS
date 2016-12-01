@@ -2,12 +2,11 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>{{title + "|" + room_name}}</title>
-	<link rel="stylesheet" href="../css/room.css">
+	<title>Welcome to {{room.roomName}}</title>
+	<link rel="stylesheet" href="/css/room.css">
 	<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
 	<script src="/socket.io/socket.io.js"></script>
-	<script>
-	// anon function in this ($) context
+	<!-- <script>
 	$(function(){
 		var host = '{{config.host}}';
 		var messages = io.connect(host + '/messages');
@@ -65,17 +64,57 @@
 			messages.emit('updateList', {room:roomNum});
 		}, 15 * 1000);
 	})
-	</script>
+	</script> -->
+	<script>
+		var host = '{{config.host}}';
+		var room = '{{room}}';
+		var messages =io.connect(host + '/messages');
+		var userName = '{{user.fullName}}';
+		var userPic = '{{user.profileAvatar}}';
+		//add socket listen on connection
+		messages.on('connect', function(){
+			console.log('Connection Messages Established!!');
+			messages.emit('joinroom', {room: room, userName: userName, userPic: userPic});
+		});
+		messages.on('messageFeed', function(data){
+			var messages = JSON.parse(data);
+			console.log(messages);
+			updateMessageFeed(messages.userPic, messages.message);
+		});
+		$(document).on('keyup', '.newmessage',function(e){
+			var o = $(this);
+			var message = o.val();
+			if(e.which == 13 && message != ''){
+				messages.emit('newMessage',{
+					room: room,
+					userName: userName,
+					userPic: userPic,
+					message : message
+				});
+				updateMessageFeed(userPic, message);
+				o.val('');
+			}
+		})
+
+		function updateMessageFeed(userPic, message){
+			var str = '<li>';
+				str +='<div class="msgbox">';
+				str +=	'<div class="pic"><img src="' + userPic + '"></div>';
+				str +=	'<div class="msg"><p>' + message + '</p></div>';
+				str += '</div></li>'
+				$(str).hide().appendTo($('.messages')).slideDown(100);
+		}
+		</script>
 </head>
 <body>
 <div class="rm-container">
 		<h1 class="rm-title">ChatCAT</h1>
 		<div class="rm-userbox">
-			<img src="{{user.profilePic}}" class="userPic">
-			<h3 class="userName">{{user.fullname}} | <a href="/logout">Logout</a><a href="/chatrooms">More Chatrooms</a></h3>
+			<img src="{{user.profileAvatar}}" class="userPic">
+			<h3 class="userName">{{user.fullName}} | <a href="/logout">Logout</a><a href="/chatrooms">More Chatrooms</a></h3>
 		</div>
 		<div class="rm-roomname">
-			<h5>{{room_name}}</h5>
+			<h5>{{room.roomName}}</h5>
 		</div>
 		<div class="rm-messages">
 			<ul class="messages">
@@ -84,7 +123,7 @@
 						<div class="pic"><img src="../public/images/profilepic.jpg">Sachin Bhatnagar</div>
 						<div class="msg"><p>Hi there this looks nice !</p></div>
 					</div>
-				</li>  -->
+				</li> -->
 			</ul>
 		</div>
 		<div class="rm-users">
