@@ -44,7 +44,7 @@ var io = require('socket.io').listen(server);
 io.configure(function () {
   io.set("transports", ["xhr-polling"]);
   io.set("polling duration", 10);
-}); 
+});
 require('./socket/socket.js')(io, rooms);
 server.listen(app.get('port'), function(){
   console.log("App working on PORT: "+app.get('port'));
