@@ -101,21 +101,19 @@
 				str +=	'<div class="pic"><img src="' + userPic + '"></div>';
 				str +=	'<div class="msg"><p>' + message + '</p></div>';
 				str += '</div></li>'
-				$(str).hide().appendTo($('.messages')).slideDown(100);
+				$(str).hide().prependTo($('.messages')).slideDown(100);
 		}
 
 		messages.on('updateUserList', function(data){
 			var userList = JSON.parse(data);
-			console.log(userList);
 			var user = $('.users');
 			user.html('');
-			for(var i = 0; i<userList.length; i++){
+			for(var i = 0; i< userList.length; i++){
 				var str = '<li><img src="' + userList[i].userPic + '"><h5>' + userList[i].userName + '</h5></li>';
 				$(str).appendTo(user);
 			}
 		});
-		setInterval(function(){
-			console.log("interval");
+		setInterval(function(){;
 			messages.emit('updateList', {room: room});
 		}, 15 * 1000);
 
