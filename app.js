@@ -41,6 +41,11 @@ app.set('port', process.env.PORT || '3001');
 
 var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
+io.configure(function () {
+  io.set("transports", ["xhr-polling"]);
+  io.set("polling duration", 10);
+}); 
+var socket = io.connect('http://localhost:8080', {reconnect: true});
 require('./socket/socket.js')(io, rooms);
 server.listen(app.get('port'), function(){
   console.log("App working on PORT: "+app.get('port'));
