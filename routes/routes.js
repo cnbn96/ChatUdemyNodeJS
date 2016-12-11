@@ -36,6 +36,12 @@ module.exports = function(express, app, passport, config, rooms){
                           config: config});
   });
 
+  router.get('/*', function(req, res, next){
+    var err = new Error('Not Found');
+    err.status = 404;
+    res.render(err);
+  });
+
   function findRoomTitle(roomID){
     var n = 0;
     while(n < rooms.length){
@@ -48,13 +54,5 @@ module.exports = function(express, app, passport, config, rooms){
       }
     }
   }
-  router.get('/getcolor',function(req, res, next){
-    res.send('Favorite color: '+(req.session.favColor===undefined?"Not Found":req.session.favColor))
-  });
-
-  router.get('/setcolor',function(req, res, next){
-    req.session.favColor = "Black";
-    res.send('Setting favourite color !');
-  });
   app.use('/', router);
 }

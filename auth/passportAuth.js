@@ -6,9 +6,16 @@ module.exports = function(passport, FacebookStrategy, config, mongoose){
   });
 
   var userModel = mongoose.model('chatUser', chatUser);
+
+  //SerializeUser will saved info user.id to session
+  //req.session.passport.user = {id: '...'};
   passport.serializeUser(function(user,done){
     done(null, user.id)
   });
+
+  //DeserializeUser will get id from session
+  //and search it in userModel by findById
+  //user will attaches to the req at req.user
   passport.deserializeUser(function(id, done){
     userModel.findById(id, function(err,user){
       done(err, user);

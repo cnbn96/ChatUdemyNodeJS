@@ -5,7 +5,7 @@
 	<title>Welcome to {{room.roomName}}</title>
 	<link rel="stylesheet" href="/css/room.css">
 	<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
-	<script src="https://cnbn96chatcat.herokuapp.com/socket.io/socket.io.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
 	<!-- <script>
 	$(function(){
 		var host = '{{config.host}}';
@@ -67,14 +67,17 @@
 	</script> -->
 	<script>
 		var host = '{{config.host}}';
-		var room = '{{room}}';
+		var roomNum = '{{room.roomNum}}';
 		var messages = 	io.connect(host + '/messages');
 		var userName = '{{user.fullName}}';
 		var userPic = '{{user.profileAvatar}}';
 		//add socket listen on connection
 		messages.on('connect', function(){
 			console.log('Connection Messages Established!!');
-			messages.emit('joinroom', {room: room, userName: userName, userPic: userPic});
+			messages.emit('joinroom', {room: roomNum, userName: userName, userPic: userPic});
+		});
+		messages.on('disconnect', function(){
+			messages.emit('outroom', {room: roomNum});
 		});
 		messages.on('messageFeed', function(data){
 			var messages = JSON.parse(data);
@@ -85,7 +88,7 @@
 			var message = o.val();
 			if(e.which == 13 && message != ''){
 				messages.emit('newMessage',{
-					room: room,
+					room: roomNum,
 					userName: userName,
 					userPic: userPic,
 					message : message
@@ -108,13 +111,22 @@
 			var userList = JSON.parse(data);
 			var user = $('.users');
 			user.html('');
-			for(var i = 0; i< userList.length; i++){
-				var str = '<li><img src="' + userList[i].userPic + '"><h5>' + userList[i].userName + '</h5></li>';
-				$(str).appendTo(user);
+			for(var i = 0; i<userList.length; i++){
+				var flag = true;
+				user.children().each(function(){
+					var name = $(this).find('h5').html();
+					if(name == userList[i].userName){
+						flag = false;
+					}
+				})
+				if(flag){
+					var str = '<li><img src="' + userList[i].userPic + '"><h5>' + userList[i].userName + '</h5></li>';
+					$(str).appendTo(user);
+				}
 			}
 		});
-		setInterval(function(){;
-			messages.emit('updateList', {room: room});
+		setInterval(function(){
+			messages.emit('updateList', {room: roomNum});
 		}, 15 * 1000);
 
 

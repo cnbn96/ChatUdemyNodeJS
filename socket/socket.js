@@ -16,12 +16,17 @@ module.exports = function(io, rooms){
     socket.on('joinroom', function(data){
       socket.userPic = data.userPic;
       socket.userName = data.userName;
-      socket.join(data.room.roomNum);
-      updateUserList(data.room.roomNum, true);
+      socket.join(data.room);
+      updateUserList(data.room, true);
     });
-
+    socket.on('disconnect', function(){
+      socket.on('outroom', function(data){
+        console.log('Disconnected!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11');
+        updateUserList(data.room, true);
+      })
+    })
     socket.on('newMessage', function(data){
-      socket.broadcast.to(data.room.roomNum).emit('messageFeed', JSON.stringify(data));
+      socket.broadcast.to(data.room).emit('messageFeed', JSON.stringify(data));
     })
 
     function updateUserList(room, updateAll){
@@ -37,7 +42,7 @@ module.exports = function(io, rooms){
     }
 
     socket.on('updateList' , function(data){
-      updateUserList(data.room.roomNum);
+      updateUserList(data.room);
     });
 
   })
