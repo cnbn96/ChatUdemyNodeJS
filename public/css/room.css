@@ -82,7 +82,7 @@ a {
     border:1px solid;
     position: relative;
     height: 534px;
-    width: 691px;
+    width: 685px;
     overflow-x:hidden;
     overflow-y:auto;
     background: rgb(255, 255, 255);
@@ -148,55 +148,110 @@ position:relative;
 }
 
 .msgbox {
-    position:relative;
+    /*position:relative;*/
     /* border: 1px solid rgb(247, 247, 247); */
     /* width:500px; */
-    height: 91px;
-    padding:5px;
+    /*height: 91px;*/
+    /*padding:5px;*/
+    /*margin-bottom: 10px;*/
+    
+    position: relative;
+    padding: 5px;
     margin-bottom: 10px;
 }
 
-.msgbox .pic {
-    position:absolute;
-    width:50px;
-    height: 50px;
+.msgbox .msgerpic{
+    /*position:absolute;*/
+    /*width:50px;*/
+    /*height: 50px;*/
     /* border:1px solid; */
+    /*background: rgb(229, 229, 229);*/
+    /*border-top-left-radius: 10px;*/
+    /*border-bottom-left-radius: 10px;*/
+    /*overflow: hidden;*/
+    
+    display: inline-block;
+    width: 50px;
+}
+
+.msgbox .msgerpic .pic {
+    /*position:absolute;*/
+    /*width:50px;*/
+    /*height: 50px;*/
+    /* border:1px solid; */
+    /*background: rgb(229, 229, 229);*/
+    /*border-top-left-radius: 10px;*/
+    /*border-bottom-left-radius: 10px;*/
+    /*overflow: hidden;*/
+    
+    position: absolute;
+    width: 50px;
+    top: 9px;
+    display: block;
+    height: 50px;
     background: rgb(229, 229, 229);
     border-top-left-radius: 10px;
     border-bottom-left-radius: 10px;
-    overflow: hidden;
 }
 
 .msgbox .msg {
-    position:absolute;
-    min-height: 98px;
-    /* height: 220px; */
-    width: 200px;
+    /*position:absolute;*/
+    /*min-height: 98px;*/
+    /*width: 200px;*/
+    /*padding: 2px;*/
+    /*background: rgb(232, 232, 232);*/
+    /*width: 604px;*/
+    /*left: 55px;*/
+    /*top: 5px;*/
+    /*overflow-x: hidden;*/
+    /*overflow-y: auto;*/
+    /*border-bottom-left-radius: 10px;*/
+    /*border-top-right-radius: 10px;*/
+    /*border-bottom-right-radius: 10px;*/
+    
+    position: relative;
+    min-height: 50px;
+    max-width: 545px;
+    height: auto;
+    display: inline-block;
     padding: 2px;
+    margin-left: 10px;
     background: rgb(232, 232, 232);
-    width: 604px;
-    left: 55px;
-    top: 5px;
-    overflow-x: hidden;
-    overflow-y: auto;
     border-bottom-left-radius: 10px;
     border-top-right-radius: 10px;
     border-bottom-right-radius: 10px;
-    box-shadow:;
 }
 
 .msgbox .msg p {
-    position:absolute;
-    top: 0px;
-    bottom: 0px;
+    /*position:absolute;*/
+    /*top: 0px;*/
+    /*bottom: 0px;*/
     /* display: block; */
-    width: 594px;
-    margin: auto;
+    /*width: 594px;*/
+    /*margin: auto;*/
     /* height: auto; */
+    /*font-size: 17px;*/
+    /*line-height: 21px;*/
+    /*word-wrap: break-word;*/
+    /*padding: 6px;*/
+    /*text-shadow: 0px 0px 1px rgba(0,0,0,0.5);*/
+    /* text-overflow: ellipsis; */
+    
+    height: auto;
+    display: block;
+    padding: 10px;
+    margin-left: 10px;
+    background: rgb(232, 232, 232);
+    padding: 10px;
+    margin: auto;
+    border-bottom-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
     font-size: 17px;
     line-height: 21px;
     word-wrap: break-word;
-    padding: 6px;
     text-shadow: 0px 0px 1px rgba(0,0,0,0.5);
-    /* text-overflow: ellipsis; */
+}
+.msgbox .msg p img{
+    max-height: 400px;
 }

@@ -5,120 +5,157 @@
 	<title>Welcome to {{room.roomName}}</title>
 	<link rel="stylesheet" href="/css/room.css">
 	<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
-	<script src="https://cnbn96chatcat.herokuapp.com/socket.io/socket.io.js"></script>
-	<!-- <script>
-	$(function(){
-		var host = '{{config.host}}';
-		var messages = io.connect(host + '/messages');
-		var roomNum = {{room_number}};
-		var userName = '{{user.fullname}}';
-		var userPic = '{{user.profilePic}}';
-
-		messages.on('connect', function(){
-			console.log('Connection to ' + userName + ' Established !!');
-			messages.emit('joinroom', {
-				room:roomNum,
-				user:userName,
-				userPic:userPic
-			});
-		});
-
-		$(document).on('keyup', '.newmessage', function(e){
-			if(e.which === 13 && $(this).val()!=''){
-				messages.emit('newMessage', {
-					room_number:roomNum,
-					user:userName,
-					userPic:userPic,
-					message:$(this).val()
-				})
-				updateMessageFeed(userPic, $(this).val());
-				$(this).val('');
-			}
-		})
-
-		messages.on('messagefeed', function(data){
-			var msgs = JSON.parse(data);
-			updateMessageFeed(msgs.userPic, msgs.message);
-		})
-
-		function updateMessageFeed(userPic, message){
-			var str = '<li>';
-				str += '<div class="msgbox">';
-				str +=	'<div class="pic"><img src="' + userPic + '"></div>';
-				str +=	'<div class="msg"><p>' + message + '</p></div>';
-				str +=	'</div>';
-				str += '</li>';
-			$(str).hide().prependTo($('.messages')).slideDown(100);
-		}
-
-		messages.on('updateUsersList', function(data){
-			var userlist = JSON.parse(data);
-			$('.users').html('');
-			for(var n = 0; n < userlist.length; n++){
-				var str = '<li><img src="' + userlist[n].userPic + '"><h5>' + userlist[n].user + '</h5></li>';
-				$(str).prependTo($('.users'));
-			}
-		})
-
-		setInterval(function(){
-			messages.emit('updateList', {room:roomNum});
-		}, 15 * 1000);
-	})
-	</script> -->
+	<script src="/socket.io/socket.io.js"></script>
 	<script>
-		var host = '{{config.host}}';
-		var room = '{{room}}';
-		var messages = 	io.connect(host + '/messages');
-		var userName = '{{user.fullName}}';
-		var userPic = '{{user.profileAvatar}}';
+		var host = '{{config.host}}',
+			messages = 	io.connect(host + '/messages'),
+			roomId = '{{room._id}}',
+			roomName = '{{room.roomName}}',
+			roomNum = '{{room.roomNumber}}',
+			userId = '{{user._id}}',
+			userName = '{{user.fullName}}',
+			userPic = '{{user.profileAvatar}}',
+			page = 0;
 		//add socket listen on connection
+		
+		
 		messages.on('connect', function(){
 			console.log('Connection Messages Established!!');
-			messages.emit('joinroom', {room: room, userName: userName, userPic: userPic});
+			messages.emit('joinroom', {roomId: roomId,room: roomNum, userName: userName, userPic: userPic});
+		});
+		messages.on('getMessagesHistory', function(data){
+			var messages = JSON.parse(data);
+			// for(var i = messages.length-1; i >= 0 ; i--){
+			// 	updateMessageFeed(messages[i].chatUser_id.profileAvatar, messages[i].message);	
+			// }
+			if(messages[0] !== null && messages[0] !== undefined){
+				$('#loadmore').show();
+				for(var i = 0; i < messages.length; i++){
+					updateMessageHistory(messages[i].chatUser_id.profileAvatar, messages[i].message);
+				}
+			}else{
+				$('#loadmore').hide();
+			}
+		});
+		messages.on('disconnect', function(){			
+			messages.emit('outroom', {room: roomNum});
 		});
 		messages.on('messageFeed', function(data){
 			var messages = JSON.parse(data);
-			updateMessageFeed(messages.userPic, messages.message);
+			updateMessageFeed(messages.user.userPic, messages.message);
+		});
+		messages.on('typingFeed', function(data){
+			var typing = JSON.parse(data);
+			updateTypingFeed(typing.userPic, typing.typing);
+		});
+		messages.on('')
+		$(document).on("click", "#loadmore", function(){
+			console.log("LOADMORE CLICKED!");
+			messages.emit('getMoreMessages', {roomId: roomId, offset: page});
+			page++;
+		});
+		$(document).on('input paste',function(event){
+			if($(event.target).hasClass('newmessage')){
+		   	  console.log("abcd");
+		   	  if((event.clipboardData || event.originalEvent.clipboardData) !== undefined){
+				  var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+				  for (index in items) {
+				    var item = items[index];
+				    if (item.kind === 'file') {
+				      var blob = item.getAsFile();
+				      var reader = new FileReader();
+				      reader.onload = function(event){
+				        var pic = '<img src="'+event.target.result+'">';
+				        messageEmit(roomNum, userName, userPic, pic);
+				      };
+				      reader.readAsDataURL(blob);
+				    }
+				  }
+		   	  }
+			}	  	
 		});
 		$(document).on('keyup', '.newmessage',function(e){
 			var o = $(this);
 			var message = o.val();
 			if(e.which == 13 && message != ''){
-				messages.emit('newMessage',{
-					room: room,
-					userName: userName,
-					userPic: userPic,
-					message : message
-				});
-				updateMessageFeed(userPic, message);
-				o.val('');
+				messageEmit(roomNum, userName, userPic, message);
 			}
 		})
-
-		function updateMessageFeed(userPic, message){
+		
+		function messageEmit(roomNum, userName, userPic, message){
+			var room = {
+				"roomId": roomId,
+				"roomNumber": roomNum,
+				"roomName": roomName
+			};
+			var user = {
+				"userId": userId,
+				"userName": userName,
+				"userPic": userPic
+			};
+			messages.emit('newMessage',{
+				room: room,
+				user: user,
+				message : message
+			});
+			updateMessageFeed(userPic, message);
+			$('.newmessage').val('');
+		}
+		function updateTypingFeed(userPic, typing){
 			var str = '<li>';
 				str +='<div class="msgbox">';
-				str +=	'<div class="pic"><img src="' + userPic + '"></div>';
+				str +=	'<div class="msgerpic"><div class="pic"><img src="' + userPic + '"></div></div>';
+				str +=	'<div class="msg"><p>' + '...' + '</p></div>';
+				str += '</div></li>';
+				$(str).hide().appendTo($('.messages')).slideDown(100);
+		}
+		function updateMessageHistory(userPic, message){
+			var str = '<li>';
+				str +='<div class="msgbox">';
+				str +=	'<div class="msgerpic"><div class="pic"><img src="' + userPic + '"></div></div>';
 				str +=	'<div class="msg"><p>' + message + '</p></div>';
 				str += '</div></li>'
 				$(str).hide().prependTo($('.messages')).slideDown(100);
+				//$('.rm-messages').delay(500).scrollTop($('.rm-messages')[0].scrollHeight);
+				// setTimeout(function(){
+				// 	$('.rm-messages').scrollTop($('.rm-messages')[0].scrollHeight);
+				// }, 150);
+		}
+		function updateMessageFeed(userPic, message){
+			var str = '<li>';
+				str +='<div class="msgbox">';
+				str +=	'<div class="msgerpic"><div class="pic"><img src="' + userPic + '"></div></div>';
+				str +=	'<div class="msg"><p>' + message + '</p></div>';
+				str += '</div></li>'
+				$(str).hide().appendTo($('.messages')).slideDown(100);
+				//$('.rm-messages').delay(500).scrollTop($('.rm-messages')[0].scrollHeight);
+				setTimeout(function(){
+					$('.rm-messages').scrollTop($('.rm-messages')[0].scrollHeight);
+				}, 150);
 		}
 
 		messages.on('updateUserList', function(data){
 			var userList = JSON.parse(data);
 			var user = $('.users');
 			user.html('');
-			for(var i = 0; i< userList.length; i++){
-				var str = '<li><img src="' + userList[i].userPic + '"><h5>' + userList[i].userName + '</h5></li>';
-				$(str).appendTo(user);
+			for(var i = 0; i<userList.length; i++){
+				var flag = true;
+				user.children().each(function(){
+					var name = $(this).find('h5').html();
+					if(name == userList[i].userName){
+						flag = false;
+					}
+				})
+				if(flag){
+					var str = '<li><img src="' + userList[i].userPic + '"><h5>' + userList[i].userName + '</h5></li>';
+					$(str).appendTo(user);
+				}
 			}
 		});
-		setInterval(function(){;
-			messages.emit('updateList', {room: room});
+		setInterval(function(){
+			messages.emit('updateList', {room: roomNum});
 		}, 15 * 1000);
-
-
-		</script>
+	</script>
 </head>
 <body>
 <div class="rm-container">
@@ -131,6 +168,10 @@
 			<h5>{{room.roomName}}</h5>
 		</div>
 		<div class="rm-messages">
+			<div class="rm-loadmore" style="margin-top: 5px;text-align: center;">
+				<a id="loadmore" href="#" style="font-size: 17px;font-weight: bold;text-decoration: underline;">
+					Load more messages...</a>
+			</div>
 			<ul class="messages">
 				<!-- <li>
 					<div class="msgbox">

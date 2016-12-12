@@ -5,25 +5,8 @@
 	<title>{{title}}</title>
 	<link rel="stylesheet" href="../css/chatroom.css">
 	<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
-	<script src="https://cnbn96chatcat.herokuapp.com/socket.io/socket.io.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
 	<script>
-	// $(function(){
-	// 	var host = '{{config.host}}';
-	// 	var socket = io.connect(host + '/roomlist'); // http://localhost:3000/roomlist
-	//
-	// 	socket.on('connect', function(){
-	// 		console.log('Connection Established !');
-	// 	})
-	//
-	// 	// Listen for a room update.
-	// 	socket.on('roomupdate', function(data){
-	// 		var procData = JSON.parse(data);
-	// 		$('.roomlist').html('');
-	// 		for(var i = 0; i < procData.length; i++){
-	// 			var str = '<a href="room/' + procData[i].room_number + '"><li>' + procData[i].room_name + '</li></a>';
-	// 			$('.roomlist').prepend(str);
-	// 		}
-	// 	})
 		$(function(){
 			var host = '{{config.host}}';
 			var socket = io.connect(host+'/roomlist');
@@ -35,10 +18,12 @@
 			//Socket listen on roomupdate event and
 			//update list room name in .roomlist
 			socket.on('roomupdate', function(data){
+				console.log("UPDATE ROOM LIST");
+				console.log(data);
 				var procData = JSON.parse(data);
 				$(".roomlist").html('');
 				for(var i = 0; i < procData.length; i++){
-					var str = '<a href="room/'+procData[i].room_number+'"><li>'+procData[i].room_name+'</li></a>';
+					var str = '<a href="room/'+procData[i].roomNumber+'"><li>'+procData[i].roomName+'</li></a>';
 					$('.roomlist').prepend(str);
 				}
 			})
@@ -54,20 +39,6 @@
 				}
 			})
 		})
-		/*
-		*	Click event listener for the `Create Room` button
-		*/
-		// $(document).on('click', '#create', function(){
-		// 	var room_name = $('.newRoom').val();
-		// 	if(room_name!=''){
-		// 		var room_number = parseInt(Math.random() * 10000);
-		// 		socket.emit('newroom', {
-		// 			room_name:room_name,
-		// 			room_number:room_number
-		// 		});
-		// 		$('.newRoom').val(''); // reset the value
-		// 	}
-		// })
 	</script>
 </head>
 <body>
