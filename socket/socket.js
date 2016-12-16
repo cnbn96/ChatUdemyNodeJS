@@ -13,7 +13,7 @@ module.exports = function(io, mongoose , config){
   });
   var chatrooms = io.of('/roomlist').on('connection', function(socket){
     console.log('Connection Established on the Server!');
-    
+
     socket.broadcast.emit('roomupdate', JSON.stringify(rooms));
     socket.emit('roomupdate', JSON.stringify(rooms));
     socket.on('newroom', function(data){
@@ -37,7 +37,7 @@ module.exports = function(io, mongoose , config){
   var messages = io.of('/messages').on('connection', function(socket){
     console.log('Connection Message Established on the Server');
     //socket.broadcast.to(data.room.roomNumber).emit('messageFeed', JSON.stringify(data));
-    
+
     socket.on('joinroom', function(data){
       socket.userPic = data.userPic;
       socket.userName = data.userName;
@@ -50,7 +50,7 @@ module.exports = function(io, mongoose , config){
       });
       updateUserList(data.room, true);
     });
-    
+
     // socket.once('disconnect', function(){
     //   socket.on('outroom', function(data){
     //     updateUserList(data.room, true);

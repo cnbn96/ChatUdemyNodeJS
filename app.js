@@ -11,7 +11,8 @@ var express = require('express'),
     knox = require('knox'),
     formidable = require('formidable'),
     fs = require('fs'),
-    os = require('os');
+    os = require('os'),
+    gm = require('gm');
 
 
 app.set('views', path.join(__dirname, 'views'));
@@ -37,12 +38,19 @@ knoxClient = knox.createClient({
   secret: config.S3Secret,
   bucket: config.S3Bucket
 });
+var server = require('http').createServer(app);
+var io = require('socket.io').listen(server);
+io.configure(function () {
+  io.set("transports", ["xhr-polling"]);
+  io.set("polling duration", 10);
+});
+require('./socket/socket.js')(io, mongoose, config);
 
 app.use(passport.initialize());
 app.use(passport.session());
-
 require('./auth/passportAuth.js')(passport, FacebookStrategy, config, mongoose);
-require('./routes/routes.js')(express, app, passport, config, mongoose, formidable, fs, os, knoxClient);
+require('./routes/routes.js')(express, app, passport, config, mongoose, formidable, fs, os, knoxClient, io, gm);
+
 app.use(function (req, res, next) {
     var err = new Error('Not Found');
     err.status = 404;
@@ -54,13 +62,8 @@ app.use(function (req, res, next) {
 // });
 app.set('port', process.env.PORT || '3001');
 
-var server = require('http').createServer(app);
-var io = require('socket.io').listen(server);
-io.configure(function () {
-  io.set("transports", ["xhr-polling"]);
-  io.set("polling duration", 10);
-});
-require('./socket/socket.js')(io, mongoose, config);
+
+
 server.listen(app.get('port'), function(){
   console.log("App working on PORT: "+app.get('port'));
   console.log('Mode: '+env);

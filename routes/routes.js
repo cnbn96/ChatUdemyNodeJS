@@ -1,10 +1,9 @@
 
-module.exports = function(express, app, passport, config, mongoose, formidable, fs, os, knoxClient){
+module.exports = function(express, app, passport, config, mongoose, formidable, fs, os, knoxClient, io, gm){
   var Room = require('../db/dbSchema/roomSchema.js'),
       Message = require('../db/dbSchema/messageSchema.js');
       // Message = require('../db/dbSchema/messageSchema.js')(mongoose, config);
   var router = express.Router();
-
   router.get('/',function(req, res, next){
     res.render('index', {title: 'Welcome to MyChatCat'});
   })
@@ -68,7 +67,6 @@ module.exports = function(express, app, passport, config, mongoose, formidable, 
       return (fstring+date+"."+ext);
     }
     var tmpFile, nFile, fName, fSize, userId, roomId;
-    console.log("ZZZZZZZZZZZZZZZZZZZZZ");
     var newForm = formidable.IncomingForm();
         newForm.keepExtensions = true;
         newForm.parse(req, function(err, fields, files){
@@ -76,56 +74,53 @@ module.exports = function(express, app, passport, config, mongoose, formidable, 
           fSize = files.upload.size;
           userId = fields.userId;
           roomId = fields.roomId;
-          console.log("CHECKKKKKKKKKKK!!!: "+ fields.userId);
-          console.log("Fields: "+ fields);
-          console.log(userId, roomId);
           fName = generateFileName(files.upload.name);
           nFile =  os.tmpDir() + '/' + fName;
-          res.writeHead(200, {'Content-type': 'text/plain'});
-          res.end();
-        });
-
-        newForm.on('end', function(){
           var stream = fs.createReadStream(tmpFile);
-          console.log("STREAMMMMMMMMMMM: "+stream);
           var req = knoxClient.putStream(stream, fName, {
             'Content-type': 'image/jpeg',
             'Content-Length': fSize
           }, function(err, results){
             console.log(results);
           });
-
-          req.on('response', function(res){
-            if(res.statusCode == 200){
+          req.on('response', function(resX){
+            if(resX.statusCode == 200){
               console.log("Pushed Success!!!!!!!!");
-              var src = "https://s3.amazonaws.com/chatcatstorage/"+ fName;
-              var message = '<img src="'+src+'">';
-              Message.createMessage(roomId, userId, message, function(err){
-                if(err){
-                  console.log("ERR");
-                }else{
-                  console.log("message update successful!");
-                }
-              });
+              res.writeHead(200, {'Content-type': 'text/plain'});
+              res.end(JSON.stringify({"FileName": fName}));
             }else{
-              next(new HttpError(res.statusCode));
+              next(new HttpError(resX.statusCode));
             }
           });
-          // fs.rename(tmpFile, nFile, function(){
-          //   fs.readFile(nFile, function(err, buf){
-          //     var req = knoxClient.put(fName, {
-          //       'Content-type': 'image/jpeg',
-          //       'Content-Length': buf.length
-          //     });
-          //
-          //     req.on('response', function(res){
-          //       if(res.statusCode == 200){
-          //         console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-          //       }
-          //     });
-          //   });
-          // });
+
         });
+
+        // newForm.on('end', function(){
+        //   var stream = fs.createReadStream(tmpFile);
+        //   var req = knoxClient.putStream(stream, fName, {
+        //     'Content-type': 'image/jpeg',
+        //     'Content-Length': fSize
+        //   }, function(err, results){
+        //     console.log(results);
+        //   });
+        //
+        //   req.on('response', function(res){
+        //     if(res.statusCode == 200){
+        //       console.log("Pushed Success!!!!!!!!");
+        //       // var src = "https://s3.amazonaws.com/chatcatstorage/"+ fName;
+        //       // var message = '<img src="'+src+'">';
+        //       // Message.createMessage(roomId, userId, message, function(err){
+        //       //   if(err){
+        //       //     console.log("ERR");
+        //       //   }else{
+        //       //     console.log("message update successful!");
+        //       //   }
+        //       // });
+        //     }else{
+        //       next(new HttpError(res.statusCode));
+        //     }
+        //   });
+        // });
   });
 
   app.use('/', router);

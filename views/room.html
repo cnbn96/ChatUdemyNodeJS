@@ -66,7 +66,7 @@
 				      var reader = new FileReader();
 				      reader.onload = function(event){
 				        var pic = '<img src="'+event.target.result+'">';
-				        messageEmit(roomNum, userName, userPic, pic);
+				        messageEmit(roomNum, userPic, pic);
 				      };
 				      reader.readAsDataURL(blob);
 				    }
@@ -78,24 +78,21 @@
 			var o = $(this);
 			var message = o.val();
 			if(e.which == 13 && message != ''){
-				messageEmit(roomNum, userName, userPic, message);
+				messageEmit(roomNum, userPic, message);
 			}
 		})
 
-		function messageEmit(roomNum, userName, userPic, message){
+		function messageEmit(roomNum, userPic, message){
 			var room = {
 				"roomId": roomId,
-				"roomNumber": roomNum,
-				"roomName": roomName
-			};
-			var user = {
-				"userId": userId,
-				"userName": userName,
-				"userPic": userPic
+				"roomNumber": roomNum
 			};
 			messages.emit('newMessage',{
 				room: room,
-				user: user,
+				user: {
+					"userId": userId,
+					"userPic": userPic
+				},
 				message : message
 			});
 			updateMessageFeed(userPic, message);
@@ -177,10 +174,15 @@
 					type: "POST",
 					processData: false,
 					contentType: false,
+					dataType: "json",
 					url: uploadURL,
 					data: form,
 					success: function(result){
-						console.log("Success!!!!!");
+						var pic = '<img src="https://s3.amazonaws.com/chatcatstorage/'+result.FileName+'">';
+						console.log(pic);
+						setTimeout(function(){
+							messageEmit(roomNum, userPic, pic);
+						},500);
 					}
 				});
 			// }
