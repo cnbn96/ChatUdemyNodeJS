@@ -7,8 +7,13 @@ var express = require('express'),
     ConnectMongo = require('connect-mongo')(session),
     mongoose = require('mongoose').connect(config.dbUrl),
     passport = require('passport'),
-    FacebookStrategy = require('passport-facebook').Strategy;
-console.log(__dirname);
+    FacebookStrategy = require('passport-facebook').Strategy,
+    knox = require('knox'),
+    formidable = require('formidable'),
+    fs = require('fs'),
+    os = require('os');
+
+
 app.set('views', path.join(__dirname, 'views'));
 app.engine('html', require('hogan-express'));
 app.set('view engine', 'html');
@@ -27,11 +32,17 @@ if(env === 'development'){
   }))
 }
 
+knoxClient = knox.createClient({
+  key: config.S3AccessKey,
+  secret: config.S3Secret,
+  bucket: config.S3Bucket
+});
+
 app.use(passport.initialize());
 app.use(passport.session());
 
 require('./auth/passportAuth.js')(passport, FacebookStrategy, config, mongoose);
-require('./routes/routes.js')(express, app, passport, config, mongoose);
+require('./routes/routes.js')(express, app, passport, config, mongoose, formidable, fs, os, knoxClient);
 app.use(function (req, res, next) {
     var err = new Error('Not Found');
     err.status = 404;
@@ -48,7 +59,7 @@ var io = require('socket.io').listen(server);
 io.configure(function () {
   io.set("transports", ["xhr-polling"]);
   io.set("polling duration", 10);
-}); 
+});
 require('./socket/socket.js')(io, mongoose, config);
 server.listen(app.get('port'), function(){
   console.log("App working on PORT: "+app.get('port'));

@@ -6,5 +6,8 @@
     "appSecret": "d1cdd21342418c5f5b063aa1126b4ef4",
     "callbackURL": "https://cnbn96chatcat.herokuapp.com/auth/facebook/callback"
   },
+  "S3AccessKey":"AKIAJPG23WFVCHMONX7A",
+  "S3Secret":"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",
+  "S3Bucket":"chatcatstorage",
   "host": "https://cnbn96chatcat.herokuapp.com"
 }

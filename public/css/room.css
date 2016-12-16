@@ -81,7 +81,8 @@ img {
     border:1px solid rgba(0,0,0,0.5);
     height: 75px;
     margin-bottom:5px;
-
+    width: 685px;
+    float: left;
     clear: both;
 }
 
@@ -142,7 +143,7 @@ position:relative;
     position:absolute;
     padding: 25px;
     margin:0px;
-    width: 908px;
+    width: 635px;
     font-size:20px;
     border:0px
 }
