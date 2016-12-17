@@ -1,4 +1,4 @@
-
+var im = require('imagemagick');
 module.exports = function(express, app, passport, config, mongoose, formidable, fs, os, knoxClient, io, gm){
   var Room = require('../db/dbSchema/roomSchema.js'),
       Message = require('../db/dbSchema/messageSchema.js');
@@ -76,23 +76,45 @@ module.exports = function(express, app, passport, config, mongoose, formidable, 
           roomId = fields.roomId;
           fName = generateFileName(files.upload.name);
           nFile =  os.tmpDir() + '/' + fName;
-          var stream = fs.createReadStream(tmpFile);
-          var req = knoxClient.putStream(stream, fName, {
-            'Content-type': 'image/jpeg',
-            'Content-Length': fSize
-          }, function(err, results){
-            console.log(results);
-          });
-          req.on('response', function(resX){
-            if(resX.statusCode == 200){
-              console.log("Pushed Success!!!!!!!!");
-              res.writeHead(200, {'Content-type': 'text/plain'});
-              res.end(JSON.stringify({"FileName": fName}));
-            }else{
-              next(new HttpError(resX.statusCode));
-            }
-          });
 
+          fs.rename(tmpFile, nFile, function(){
+            var stream = fs.createReadStream(nFile);
+            var req = knoxClient.putStream(stream, fName, {
+              'Content-type': 'image/jpeg',
+              'Content-Length': fSize
+            }, function(err, results){
+              console.log(results);
+            });
+            req.on('response', function(resX){
+              if(resX.statusCode == 200){
+                console.log("Pushed Success!!!!!!!!");
+                res.writeHead(200, {'Content-type': 'text/plain'});
+                res.end(JSON.stringify({"imageURL": '<img src="'+ config.S3URL + fName +'">'}));
+              }else{
+                var err = new Error("Error" + resX.statusCode);
+                err.status = resX.statusCode;
+                next(err);
+              }
+            });
+              // var stream = fs.createReadStream(nFile);
+              // var req = knoxClient.putStream(stream, fName, {
+              //   'Content-type': 'image/jpeg',
+              //   'Content-Length': fSize
+              // }, function(err, results){
+              //   console.log(results);
+              // });
+              // req.on('response', function(resX){
+              //   if(resX.statusCode == 200){
+              //     console.log("Pushed Success!!!!!!!!");
+              //     res.writeHead(200, {'Content-type': 'text/plain'});
+              //     res.end(JSON.stringify({"FileName": fName}));
+              //   }else{
+              //     var err = new Error("Error" + resX.statusCode);
+              //     err.status = resX.statusCode;
+              //     next(err);
+              //   }
+              // });
+          });
         });
 
         // newForm.on('end', function(){

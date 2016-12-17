@@ -6,8 +6,9 @@
     "appSecret": "d1cdd21342418c5f5b063aa1126b4ef4",
     "callbackURL": "http://localhost:3001/auth/facebook/callback"
   },
-  "S3AccessKey":"AKIAJPG23WFVCHMONX7A",
-  "S3Secret":"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",
+  "S3AccessKey":"AKIAJHCO3PXVCOWQD7CQ",
+  "S3Secret":"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",
   "S3Bucket":"chatcatstorage",
+  "S3URL": "http://d3oixujbgkf2dz.cloudfront.net/",
   "host": "http://localhost:3001"
 }

@@ -3,6 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Welcome to {{room.roomName}}</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
 	<link rel="stylesheet" href="/css/room.css">
 	<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
 	<script src="/socket.io/socket.io.js"></script>
@@ -63,12 +64,15 @@
 				    var item = items[index];
 				    if (item.kind === 'file') {
 				      var blob = item.getAsFile();
-				      var reader = new FileReader();
-				      reader.onload = function(event){
-				        var pic = '<img src="'+event.target.result+'">';
-				        messageEmit(roomNum, userPic, pic);
-				      };
-				      reader.readAsDataURL(blob);
+							var file = new File([blob], "ABCD", {type: blob.type, lastModified: Date.now()});
+							console.log(file);
+							uploadNow(file);
+				      // var reader = new FileReader();
+				      // reader.onload = function(event){
+				      //   var pic = '<img src="'+event.target.result+'">';
+				      //   messageEmit(roomNum, userPic, pic);
+				      // };
+				      // reader.readAsDataURL(blob);
 				    }
 				  }
 		   	  }
@@ -153,19 +157,19 @@
 			messages.emit('updateList', {room: roomNum});
 		}, 15 * 1000);
 
-		$(document).on('click','#doUpload', function(){
+		$(document).on('change','#uploadImage', function(){
 			var uploadFile = $('#uploadImage');
 			if(uploadFile.val() != ''){
 				var file = uploadFile[0].files[0];
 				uploadNow(file);
 			}
 		});
+
 		function uploadNow(file){
 			var uploadURL = host + '/messageUpload';
 			// var uploadFile = $('#uploadImage');
 			// if(uploadFile.val() != ''){
 				var form = new FormData();
-				console.log(uploadURL);
 				//form.append('upload', uploadFile[0].files[0]);
 				form.append('upload', file);
 				form.append('userId', userId);
@@ -178,10 +182,8 @@
 					url: uploadURL,
 					data: form,
 					success: function(result){
-						var pic = '<img src="https://s3.amazonaws.com/chatcatstorage/'+result.FileName+'">';
-						console.log(pic);
 						setTimeout(function(){
-							messageEmit(roomNum, userPic, pic);
+							messageEmit(roomNum, userPic, result.imageURL);
 						},500);
 					}
 				});
@@ -233,18 +235,16 @@
 				    padding: 5px;
 				    background: rgb(250, 250, 250);
 				    float: left;">
-				<input name="uploadImage" id="uploadImage" type="file" class="input-file" style="width: 243px;">
-				<button id="doUpload" type="submit" style="
-						background: -webkit-linear-gradient(top,#FD8 15%,#F49D00 85%);
-				    border: 1px solid #2164A6;
-				    color: black;
-				    display: block;
-				    border-radius: 4px;
-				    margin-top: 5px;
-				    float: left;
-				    line-height: 14px;
-				    font-size: 12px;
-				    padding: 5px 12px 4px 12px;">UPLOAD</button>
+						<label for="uploadImage" class="fa fa-file-image-o" style="
+							    top: 0;
+							    bottom: 0;
+							    margin: auto;
+							    width: 50px;
+							    position: absolute;
+							    color: grey;
+							    height: 50px;
+							    font-size: 50px;"></label>
+				<input name="uploadImage" id="uploadImage" type="file" class="input-file" style="width: 243px; display: none;position: absolute; z-index: -11;">
 		</div>
 	</div>
 </body>
