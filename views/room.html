@@ -4,9 +4,62 @@
 	<meta charset="UTF-8">
 	<title>Welcome to {{room.roomName}}</title>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
+	<link rel="stylesheet" href="/lib/emojionearea/dist/emojionearea.min.css">
 	<link rel="stylesheet" href="/css/room.css">
-	<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+</head>
+<body>
+<div class="rm-container">
+		<h1 class="rm-title">TheFace</h1>
+		<div class="rm-userbox">
+			<img src="{{user.profileAvatar}}" class="userPic">
+			<h3 class="userName">{{user.fullName}} | <a href="/logout">Logout</a><a href="/chatrooms">More Chatrooms</a></h3>
+		</div>
+		<div class="rm-roomname">
+			<h5>{{room.roomName}}</h5>
+		</div>
+		<div class="rm-messages">
+			<div class="rm-loadmore" style="margin-top: 5px;text-align: center;">
+				<a id="loadmore" href="#" style="font-size: 17px;font-weight: bold;text-decoration: underline;">
+					Load more messages...</a>
+			</div>
+			<ul class="messages">
+
+			</ul>
+		</div>
+		<div class="rm-users">
+			<ul class="users">
+
+			</ul>
+		</div>
+		<div class="rm-newmessage ">
+			<textarea type="text" class="newmessage" autocomplete="off" placeholder="Type in your message and press enter OR paste your screenshot in here!"></textarea>
+		</div>
+		<div class="rm-actions" style="
+				    position: relative;
+				    margin-left: 10px;
+				    border: 1px solid;
+				    width: 243px;
+						height: 65px;
+				    display: inline-block;
+				    padding: 5px;
+				    background: rgb(250, 250, 250);
+				    float: left;">
+						<label for="uploadImage" class="fa fa-file-image-o" style="
+							    top: 0;
+							    bottom: 0;
+							    margin: auto;
+							    width: 40px;
+							    position: absolute;
+							    color: grey;
+							    height: 40px;
+							    font-size: 40px;
+									left: 10px;"></label>
+				<input name="uploadImage" id="uploadImage" type="file" class="input-file" style="width: 243px; display: none;position: absolute; z-index: -11;">
+		</div>
+	</div>
+	<script src="/lib/jquery/dist/jquery.min.js"></script>
 	<script src="/socket.io/socket.io.js"></script>
+	<script src="/lib/emojionearea/dist/emojionearea.min.js"></script>
 	<script>
 		var host = '{{config.host}}',
 			messages = 	io.connect(host + '/messages'),
@@ -26,9 +79,6 @@
 		});
 		messages.on('getMessagesHistory', function(data){
 			var messages = JSON.parse(data);
-			// for(var i = messages.length-1; i >= 0 ; i--){
-			// 	updateMessageFeed(messages[i].chatUser_id.profileAvatar, messages[i].message);
-			// }
 			if(messages[0] !== null && messages[0] !== undefined){
 				$('#loadmore').show();
 				for(var i = 0; i < messages.length; i++){
@@ -49,42 +99,26 @@
 			var typing = JSON.parse(data);
 			updateTypingFeed(typing.userPic, typing.typing);
 		});
-		messages.on('')
 		$(document).on("click", "#loadmore", function(){
 			console.log("LOADMORE CLICKED!");
 			messages.emit('getMoreMessages', {roomId: roomId, offset: page});
 			page++;
 		});
 		$(document).on('input paste',function(event){
-			if($(event.target).hasClass('newmessage')){
-		   	  console.log("abcd");
-		   	  if((event.clipboardData || event.originalEvent.clipboardData) !== undefined){
+			if($(event.target).hasClass('emojionearea-editor')){
+	   	  if((event.clipboardData || event.originalEvent.clipboardData) !== undefined){
 				  var items = (event.clipboardData || event.originalEvent.clipboardData).items;
 				  for (index in items) {
 				    var item = items[index];
 				    if (item.kind === 'file') {
 				      var blob = item.getAsFile();
 							var file = new File([blob], "ABCD", {type: blob.type, lastModified: Date.now()});
-							console.log(file);
 							uploadNow(file);
-				      // var reader = new FileReader();
-				      // reader.onload = function(event){
-				      //   var pic = '<img src="'+event.target.result+'">';
-				      //   messageEmit(roomNum, userPic, pic);
-				      // };
-				      // reader.readAsDataURL(blob);
 				    }
 				  }
-		   	  }
+	   	  }
 			}
 		});
-		$(document).on('keyup', '.newmessage',function(e){
-			var o = $(this);
-			var message = o.val();
-			if(e.which == 13 && message != ''){
-				messageEmit(roomNum, userPic, message);
-			}
-		})
 
 		function messageEmit(roomNum, userPic, message){
 			var room = {
@@ -100,7 +134,6 @@
 				message : message
 			});
 			updateMessageFeed(userPic, message);
-			$('.newmessage').val('');
 		}
 		function updateTypingFeed(userPic, typing){
 			var str = '<li>';
@@ -167,85 +200,47 @@
 
 		function uploadNow(file){
 			var uploadURL = host + '/messageUpload';
-			// var uploadFile = $('#uploadImage');
-			// if(uploadFile.val() != ''){
-				var form = new FormData();
-				//form.append('upload', uploadFile[0].files[0]);
-				form.append('upload', file);
-				form.append('userId', userId);
-				form.append('roomId', roomId);
-				$.ajax({
-					type: "POST",
-					processData: false,
-					contentType: false,
-					dataType: "json",
-					url: uploadURL,
-					data: form,
-					success: function(result){
-						setTimeout(function(){
-							messageEmit(roomNum, userPic, result.imageURL);
-						},500);
-					}
-				});
-			// }
+			var form = new FormData();
+			form.append('upload', file);
+			form.append('userId', userId);
+			form.append('roomId', roomId);
+			$.ajax({
+				type: "POST",
+				processData: false,
+				contentType: false,
+				dataType: "json",
+				url: uploadURL,
+				data: form,
+				success: function(result){
+					setTimeout(function(){
+						messageEmit(roomNum, userPic, result.imageURL);
+					},500);
+				}
+			});
 		}
-
+		$(document).ready(function(){
+			var el = $(".newmessage").emojioneArea({
+		  	pickerPosition: "top",
+		  	filtersPosition: "bottom",
+		    tonesStyle: "square",
+				events: {
+					keydown: function (editor, e) {
+						var message = editor.html();
+						if(message === '' && e.which == 13){
+							e.preventDefault();
+						}
+						if( (e.which == 13 && e.shiftKey === false) && message != ''){
+							$(editor).empty();
+							$('textarea.newmessage').val('');
+							e.preventDefault();
+							messageEmit(roomNum, userPic, message);
+						}
+			    }
+				}
+		  });
+		})
 	</script>
-</head>
-<body>
-<div class="rm-container">
-		<h1 class="rm-title">ChatCAT</h1>
-		<div class="rm-userbox">
-			<img src="{{user.profileAvatar}}" class="userPic">
-			<h3 class="userName">{{user.fullName}} | <a href="/logout">Logout</a><a href="/chatrooms">More Chatrooms</a></h3>
-		</div>
-		<div class="rm-roomname">
-			<h5>{{room.roomName}}</h5>
-		</div>
-		<div class="rm-messages">
-			<div class="rm-loadmore" style="margin-top: 5px;text-align: center;">
-				<a id="loadmore" href="#" style="font-size: 17px;font-weight: bold;text-decoration: underline;">
-					Load more messages...</a>
-			</div>
-			<ul class="messages">
-				<!-- <li>
-					<div class="msgbox">
-						<div class="pic"><img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAgAAAQABAAD//gAEKgD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wgARCAAyADIDACIAAREBAhEB/8QAGgAAAgMBAQAAAAAAAAAAAAAAAAMCBAUBBv/EABkBAAIDAQAAAAAAAAAAAAAAAAEDAAIEBf/EABkBAAIDAQAAAAAAAAAAAAAAAAEDAAIEBf/aAAwDAAABEQIRAAABwiqvn7GL1tIM86Z77qeVgghyV66FlDc+2lQsYOnHfM0anfqJXUs1sLXF6CSTVcAgO86RCUZSSWxcPQ5B/8QAIxAAAgICAgAHAQAAAAAAAAAAAQIAAwQSESIFEBMUICFBMf/aAAgBAAABBQLabS3I0K5B4SzcbTacx31Xw+hBXe9dav1yuZzOY/ZUoZ0ZFtbKpCEmeqkxxsLupot5qJImVbHJJmP9V3W7NWx3KWGXNwfIt1n6cw+3+R/k/Z//xAAdEQACAgMAAwAAAAAAAAAAAAAAAQIRAxIhICJB/9oACAECEQE/AbFjb62WWfCNUZZLbhsxy5RinFL2G78v/8QAHBEAAgIDAQEAAAAAAAAAAAAAAAECEQMSIUIg/9oACAEBEQE/AdbHKK4kOBqeqG3Zig2umiFDtsyRl5Eq+v/EACMQAAEDAwQCAwAAAAAAAAAAAAEAAhEQITESICJBUWEwUoH/2gAIAQAABj8CpGSpLDCnYStT4Lj5UEgelww7ZCDrR5TQx99OU3uKZRlCFYq1vxWvK5UJ9rjhBZstA6qG9V0gc/t8f//EAB4QAAMAAgMBAQEAAAAAAAAAAAABESExEEFRYXGR/9oACAEAAAE/IeBEi+I231SQmIfI+WCMnN0Vr3pFsnoZoPhRW3vQvetVto1HbBmTm6vIhKtxH2fwU16hMDZ1BnQsqY9ikzpGOvZYnhCXjirIpUYe9iU3E3BfG42JGz+iyT4h/kZIaw9JU2r6QSuWXPD0M95nw//aAAwDAAABEQIRAAAQHMSBVOE+S5tPVpUF/8QAGxEBAAMAAwEAAAAAAAAAAAAAAQARIRAgMUH/2gAIAQIRAT8QSawzJL6Pzj7ZgdyGXCfDyIBsd3L6/wD/xAAcEQEAAgIDAQAAAAAAAAAAAAABABEQMSAhQfD/2gAIAQERAT8QGqIp3YBSacDqibrzUA45i3RyJPvYQqUcf//EACEQAQACAgIDAQADAAAAAAAAAAEAESExQVFhcYGREOHw/9oACAEAAAE/EAz3hazFtqAgIQvPQipTeQbr3PPPuV8QUaaYO3iAOcSjV8FzQtNw/BHazGIorkr3B7/hZpJl6nZ08Rj66haBkOpfEoKMvP2VqyF7vEVCDauIly+pIG6oR8Ri1AVloFUF3F/7MVNozUD6zc1gsF+hBC4ini3VS7qv2VBCitAVLkaaHbyg5loEPK+jbBqEy/L2g6WeSV/oidZlHa9zIb7mUdjaKes5mHYO53h3btlAEtmqaR17w18QmqO5/9k=">Sachin Bhatnagar</div>
-						<div class="msg"><p>Hi there this looks nice !</p></div>
-					</div>
-				</li> -->
-			</ul>
-		</div>
-		<div class="rm-users">
-			<ul class="users">
 
-			</ul>
-		</div>
-		<div class="rm-newmessage">
-			<input type="text" class="newmessage" autocomplete="off" placeholder="Type in your message and press enter !">
 
-		</div>
-		<div class="rm-actions" style="
-				    position: relative;
-				    margin-left: 10px;
-				    border: 1px solid;
-				    width: 243px;
-						height: 65px;
-				    display: inline-block;
-				    padding: 5px;
-				    background: rgb(250, 250, 250);
-				    float: left;">
-						<label for="uploadImage" class="fa fa-file-image-o" style="
-							    top: 0;
-							    bottom: 0;
-							    margin: auto;
-							    width: 50px;
-							    position: absolute;
-							    color: grey;
-							    height: 50px;
-							    font-size: 50px;"></label>
-				<input name="uploadImage" id="uploadImage" type="file" class="input-file" style="width: 243px; display: none;position: absolute; z-index: -11;">
-		</div>
-	</div>
 </body>
 </html>

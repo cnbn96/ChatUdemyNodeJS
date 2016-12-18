@@ -1,0 +1,20 @@
+{
+  "name": "mychatcat",
+  "description": "",
+  "main": "index.js",
+  "authors": [
+    "cnbn96"
+  ],
+  "license": "ISC",
+  "homepage": "https://github.com/cnbn96/ChatUdemyNodeJS",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "emojionearea": "3.0.0"
+  }
+}
