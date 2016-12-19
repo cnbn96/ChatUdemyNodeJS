@@ -14,6 +14,10 @@ module.exports = function(express, app, passport, config, mongoose, formidable, 
       res.redirect('/');
     }
   }
+  // router.get('/login', passport.authennticate('local'),{
+  //   successRedirect: '/chatrooms',
+  //   failureRedirect: '/'
+  // });
   router.get('/auth/facebook', passport.authenticate('facebook'));
 
   router.get('/auth/facebook/callback', passport.authenticate('facebook',{
@@ -47,7 +51,7 @@ module.exports = function(express, app, passport, config, mongoose, formidable, 
         next(err);
         return;
       }
-      res.render('room', {title:'Welcome to MyChatCat Room',
+      res.render('room', {title:'Welcome to '+room.roomName,
                                 user: req.user,
                                 room: room,
                                 config: config});

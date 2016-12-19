@@ -19,7 +19,6 @@
 			//update list room name in .roomlist
 			socket.on('roomupdate', function(data){
 				console.log("UPDATE ROOM LIST");
-				console.log(data);
 				var procData = JSON.parse(data);
 				$(".roomlist").html('');
 				for(var i = 0; i < procData.length; i++){
@@ -38,14 +37,14 @@
 					$(".newRoom").val('');
 				}
 			});
-			
+
 
 		});
 	</script>
 </head>
 <body>
 	<div class="cr-container">
-		<h1 class="cr-title">ChatCAT</h1>
+		<h1 class="cr-title">TheFace</h1>
 		<div class="cr-userbox">
 			<img src="{{user.profileAvatar}}" class="userPic">
 			<h3 class="userName">{{user.fullName}} | <a href="/logout">Logout</a></h3>

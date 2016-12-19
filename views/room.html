@@ -134,6 +134,10 @@
 				message : message
 			});
 			updateMessageFeed(userPic, message);
+			//set scroll postion after update message
+			setTimeout(function(){
+				$('.rm-messages').scrollTop($('.rm-messages')[0].scrollHeight);
+			}, 150);
 		}
 		function updateTypingFeed(userPic, typing){
 			var str = '<li>';
@@ -163,9 +167,6 @@
 				str += '</div></li>'
 				$(str).hide().appendTo($('.messages')).slideDown(100);
 				//$('.rm-messages').delay(500).scrollTop($('.rm-messages')[0].scrollHeight);
-				setTimeout(function(){
-					$('.rm-messages').scrollTop($('.rm-messages')[0].scrollHeight);
-				}, 150);
 		}
 
 		messages.on('updateUserList', function(data){
@@ -223,6 +224,9 @@
 		  	pickerPosition: "top",
 		  	filtersPosition: "bottom",
 		    tonesStyle: "square",
+				autocapitalize: "on",
+				autocorrect: "on",
+				autocomplete: "on",
 				events: {
 					keydown: function (editor, e) {
 						var message = editor.html();
