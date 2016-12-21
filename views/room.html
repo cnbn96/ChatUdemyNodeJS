@@ -154,17 +154,13 @@
 				str +=	'<div class="msg"><p>' + message + '</p></div>';
 				str += '</div></li>'
 				$(str).hide().prependTo($('.messages')).slideDown(100);
-				//$('.rm-messages').delay(500).scrollTop($('.rm-messages')[0].scrollHeight);
-				// setTimeout(function(){
-				// 	$('.rm-messages').scrollTop($('.rm-messages')[0].scrollHeight);
-				// }, 150);
 		}
 		function updateMessageFeed(userPic, message){
 			var str = '<li>';
 				str +='<div class="msgbox">';
 				str +=	'<div class="msgerpic"><div class="pic"><img src="' + userPic + '"></div></div>';
 				str +=	'<div class="msg"><p>' + message + '</p></div>';
-				str += '</div></li>'
+				str += '</div></li>';
 				$(str).hide().appendTo($('.messages')).slideDown(100);
 				//$('.rm-messages').delay(500).scrollTop($('.rm-messages')[0].scrollHeight);
 		}
