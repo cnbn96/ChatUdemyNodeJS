@@ -2,8 +2,8 @@
   "dbUrl":"mongodb://utnhi123:utnhi123@ds111718.mlab.com:11718/chatcatdb" ,
   "sessionSecret":"faksdfjklasd12312312445",
   "fb":{
-    "appID": "853278644814413",
-    "appSecret": "d1cdd21342418c5f5b063aa1126b4ef4",
+    "appID": "586906532023734",
+    "appSecret": "b59e291d6165a6c021525486d1bf02cb",
     "callbackURL": "https://cnbn96chatcat.herokuapp.com/auth/facebook/callback"
   },
   "S3AccessKey":"AKIAJHCO3PXVCOWQD7CQ",
